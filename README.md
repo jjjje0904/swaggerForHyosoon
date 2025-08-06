@@ -5,7 +5,7 @@ This repository is a template for using the [Swagger UI](https://github.com/swag
 
 The template will periodically auto-update the Swagger UI dependency and create a pull request. See the [GitHub Actions workflow here](.github/workflows/update-swagger.yml).
 
-The example API specification used by this repository can be seen hosted at [https://peter-evans.github.io/swagger-github-pages](https://peter-evans.github.io/swagger-github-pages/).
+The example API specification used by this repository can be seen hosted at [https://peter-evans.github.io/swagger-github-pages](https://jjjje0904.github.io/swaggerForHyosoon/).
 
 ## Steps to use this template
 
