@@ -1,23 +1,225 @@
----
 openapi: 3.0.1
 info:
   title: 효순이들
   description: 효림의료재단 AI기반 파킨슨병 스마트 돌봄 시스템 API 문서
-  version: '1.0'
+  version: "1.0"
 servers:
 - url: http://localhost:8080
   description: Generated server url
+tags:
+- name: medication
+  description: 복약 관련 API
+- name: Auth
+  description: 회원가입/로그인/인증 관련 API
 paths:
-  "/api/v1/test/hello":
-    get:
+  /api/medication-record:
+    post:
       tags:
-      - test-controller
-      operationId: test
+      - medication
+      summary: 오늘의 복약 기록
+      description: 식사 후 복약 유무 및 복약 특이사항 기록
+      operationId: recordMedication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicationRecordRequest"
+        required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
-            "*/*":
+            '*/*':
               schema:
-                type: object
-components: {}
+                $ref: "#/components/schemas/ApiResponseVoid"
+  /api/auth/reissue:
+    post:
+      tags:
+      - Auth
+      summary: AccessToken 재발급
+      description: RefreshToken을 기반으로 AccessToken을 재발급
+      operationId: reissue
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseAuthTokenResponse"
+  /api/auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: 로그아웃
+      description: RefreshToken 쿠키를 만료시켜 로그아웃을 수행
+      operationId: logout
+      responses:
+        "200":
+          description: OK
+  /api/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: 로그인
+      description: 아이디와 비밀번호를 이용해 로그인
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseAuthTokenResponse"
+  /api/auth/join:
+    post:
+      tags:
+      - Auth
+      summary: 회원가입
+      description: 사용자 정보를 받아 회원가입을 수행
+      operationId: join
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JoinDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseVoid"
+components:
+  schemas:
+    MedicationRecordRequest:
+      required:
+      - dinnerTaken
+      - lunchTaken
+      - morningTaken
+      - recordDate
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        morningTaken:
+          type: string
+          enum:
+          - NONE
+          - "YES"
+          - "NO"
+        lunchTaken:
+          type: string
+          enum:
+          - NONE
+          - "YES"
+          - "NO"
+        dinnerTaken:
+          type: string
+          enum:
+          - NONE
+          - "YES"
+          - "NO"
+        recordDate:
+          type: string
+          format: date-time
+        medicationNotes:
+          type: string
+    ApiResponseVoid:
+      type: object
+      properties:
+        isSuccess:
+          type: boolean
+          description: 요청 성공 여부
+          example: true
+        code:
+          type: string
+          description: 응답 코드
+          example: "200"
+        message:
+          type: string
+          description: 응답 메시지
+          example: 요청이 성공했습니다.
+        payload:
+          type: object
+          description: 응답 데이터 (payload)
+      description: 공통 API 응답 포맷
+    ApiResponseAuthTokenResponse:
+      type: object
+      properties:
+        isSuccess:
+          type: boolean
+          description: 요청 성공 여부
+          example: true
+        code:
+          type: string
+          description: 응답 코드
+          example: "200"
+        message:
+          type: string
+          description: 응답 메시지
+          example: 요청이 성공했습니다.
+        payload:
+          $ref: "#/components/schemas/AuthTokenResponse"
+      description: 공통 API 응답 포맷
+    AuthTokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT Access Token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      description: AccessToken 응답 DTO
+    LoginRequestDto:
+      required:
+      - loginId
+      - password
+      type: object
+      properties:
+        loginId:
+          type: string
+          description: 로그인 ID
+          example: testuser01
+        password:
+          type: string
+          description: 비밀번호
+          example: securePass123!
+      description: 로그인 요청 DTO
+    JoinDto:
+      required:
+      - birth
+      - loginId
+      - medicationStatus
+      - password
+      type: object
+      properties:
+        loginId:
+          type: string
+          description: 로그인 ID
+          example: testuser01
+        password:
+          type: string
+          description: 비밀번호
+          example: securePass123!
+        birth:
+          type: string
+          description: 생년월일
+          format: date
+          example: 1998-04-15
+        medicationStatus:
+          type: string
+          description: 복약 상태
+          example: "ON"
+          enum:
+          - "ON"
+          - "OFF"
+          - "ON"
+          - "OFF"
+      description: 회원가입 요청 DTO
